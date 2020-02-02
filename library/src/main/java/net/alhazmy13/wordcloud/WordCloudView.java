@@ -41,7 +41,6 @@ public class WordCloudView extends WebView {
         this.min = 20;
         this.colors = new int[0];
         this.random = new Random();
-        //  init();
     }
 
     /**

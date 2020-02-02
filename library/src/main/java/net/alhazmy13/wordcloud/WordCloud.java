@@ -11,11 +11,11 @@ public class WordCloud {
     /**
      * The Text.
      */
-    String text;
+    private String text;
     /**
      * The Weight.
      */
-    int weight;
+    private int weight;
 
     /**
      * Instantiates a new WordCloud.

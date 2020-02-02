@@ -1,9 +1,11 @@
 package net.alhazmy13.wordcloud.example;
 
-import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
+import android.view.ViewTreeObserver;
+import android.widget.RelativeLayout;
+
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AppCompatActivity;
 
 import net.alhazmy13.example.R;
 import net.alhazmy13.wordcloud.ColorTemplate;
@@ -24,12 +26,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         generateRandomText();
-        WordCloudView wordCloud = (WordCloudView) findViewById(R.id.wordCloud);
+        final RelativeLayout relativeLayout = this.findViewById(R.id.activity_main);
+        final WordCloudView wordCloud = findViewById(R.id.wordCloud);
         wordCloud.setDataSet(list);
-        wordCloud.setSize(200,200);
         wordCloud.setColors(ColorTemplate.MATERIAL_COLORS);
-        wordCloud.notifyDataSetChanged();
-
+        relativeLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                wordCloud.notifyDataSetChanged();
+            }
+        });
     }
 
     private void generateRandomText() {

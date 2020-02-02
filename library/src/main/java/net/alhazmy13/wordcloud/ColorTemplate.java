@@ -1,7 +1,10 @@
 package net.alhazmy13.wordcloud;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
+
+import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,21 +46,21 @@ public class ColorTemplate {
     /**
      * Converts the given hex-color-string to rgb.
      *
-     * @param hex
-     * @return
+     * @param hex The RBG hex code
+     * @return An integer representing the number
      */
     public static int rgb(String hex) {
         int color = (int) Long.parseLong(hex.replace("#", ""), 16);
         int r = (color >> 16) & 0xFF;
         int g = (color >> 8) & 0xFF;
-        int b = (color >> 0) & 0xFF;
+        int b = color & 0xFF;
         return Color.rgb(r, g, b);
     }
 
     /**
      * Returns the Android ICS holo blue light color.
      *
-     * @return
+     * @return The holo blue color
      */
     public static int getHoloBlue() {
         return Color.rgb(51, 181, 229);
@@ -66,9 +69,9 @@ public class ColorTemplate {
     /**
      * Sets the alpha component of the given color.
      *
-     * @param color
+     * @param color The color
      * @param alpha 0 - 255
-     * @return
+     * @return The color with alpha
      */
     public static int colorWithAlpha(int color, int alpha) {
         return (color & 0xffffff) | ((alpha & 0xff) << 24);
@@ -78,16 +81,16 @@ public class ColorTemplate {
      * turn an array of resource-colors (contains resource-id integers) into an
      * array list of actual color integers
      *
-     * @param r
+     * @param c The context
      * @param colors an integer array of resource id's of colors
-     * @return
+     * @return The colors
      */
-    public static List<Integer> createColors(Resources r, int[] colors) {
+    public static List<Integer> createColors(Context c, int[] colors) {
 
-        List<Integer> result = new ArrayList<Integer>();
+        List<Integer> result = new ArrayList<>();
 
         for (int i : colors) {
-            result.add(r.getColor(i));
+            result.add(ContextCompat.getColor(c, i));
         }
 
         return result;

@@ -83,4 +83,14 @@ class JavascriptInterface {
     public String getCloudFont() {
         return mCloudFont;
     }
+
+    /**
+     * Gets parent height.
+     *
+     * @return the parent height
+     */
+    @android.webkit.JavascriptInterface
+    public void onWordClick(String word) {
+        Log.i(TAG, word);
+    }
 }
