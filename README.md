@@ -1,6 +1,7 @@
 
 </p>
 # Android Word Cloud
+
 ![](https://img.shields.io/badge/Platform-Android-brightgreen.svg)
 ![](https://img.shields.io/packagist/l/doctrine/orm.svg)
 ![](https://img.shields.io/badge/version-0.2.0_beta-blue.svg)
