@@ -2,7 +2,7 @@
 
 ![](https://img.shields.io/badge/Platform-Android-brightgreen.svg)
 ![](https://img.shields.io/packagist/l/doctrine/orm.svg)
-![](https://img.shields.io/badge/version-0.2.0_beta-blue.svg)
+![](https://img.shields.io/badge/version-0.0.1-blue.svg)
 
 ------
 
@@ -14,22 +14,11 @@ example 1 | example 2
 
 ## Installation
 
-**Maven**
-
-```xml
-<dependency>
-<groupId>net.alhazmy13.wordcloud</groupId>
-<artifactId>library</artifactId>
-<version>0.2.0-beta</version>
-</dependency>
-```
-
-
 **Gradle**
 
 ```gradle
 dependencies {
-	compile 'net.alhazmy13.wordcloud:library:0.2.0-beta'
+    implementation 'com.github.appstronautstudios:AndroidWordCloud:0.0.1'
 }
 ```
 
@@ -47,8 +36,8 @@ Then, within your code, fetch the view and initialize it:
 
 ```java
 WordCloudView wordCloud = (WordCloudView) findViewById(R.id.wordCloud);
-        wordCloud.setDataSet(list);
-        wordCloud.notifyDataSetChanged();
+wordCloud.setDataSet(list);
+wordCloud.notifyDataSetChanged();
 ```
 
 And make sure to call `notifyDataSetChanged` to update view.
@@ -68,11 +57,6 @@ wordCloud.setColors(new int[] {Color.BLUE, Color.GRAY, Color.GREEN, Color.CYAN }
 ```java
 wordCloud.setScale(MAX,MIN);
 ```
-
-## Features to be added:
-- `onClickEvent` for each word.
-- ~~Custom color for each word~~.
-- Custom font.
 
 ## Credits 
 - [d3-cloud](https://github.com/jasondavies/d3-cloud)
