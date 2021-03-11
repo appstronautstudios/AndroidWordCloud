@@ -1,5 +1,3 @@
-
-</p>
 # Android Word Cloud
 
 ![](https://img.shields.io/badge/Platform-Android-brightgreen.svg)
@@ -9,8 +7,10 @@
 ------
 
 ## Screenshots 
-  <img src="https://cloud.githubusercontent.com/assets/4659608/20027390/5e40ecf6-a324-11e6-95e4-31dfe850c49b.png" width="400">
-  <img src="https://cloud.githubusercontent.com/assets/4659608/20027391/5e76fd3c-a324-11e6-99d9-14fae8c85838.png" width="400">
+
+example 1 | example 2
+--- | ---
+![](https://cloud.githubusercontent.com/assets/4659608/20027390/5e40ecf6-a324-11e6-95e4-31dfe850c49b.png) | ![](https://cloud.githubusercontent.com/assets/4659608/20027391/5e76fd3c-a324-11e6-99d9-14fae8c85838.png)
 
 ## Installation
 
@@ -54,7 +54,7 @@ WordCloudView wordCloud = (WordCloudView) findViewById(R.id.wordCloud);
 And make sure to call `notifyDataSetChanged` to update view.
 
 ## Additional Options 
-###Setting Color
+### Setting Color
 
 there's two option to change the colors, either by passing an array of `int` or by using a predefined colors from `ColorTemplate` class
 
@@ -63,7 +63,7 @@ wordCloud.setColors(ColorTemplate.MATERIAL_COLORS);
 //OR
 wordCloud.setColors(new int[] {Color.BLUE, Color.GRAY, Color.GREEN, Color.CYAN });
 ```
-###Setting Scale Values
+### Setting Scale Values
 
 ```java
 wordCloud.setScale(MAX,MIN);
