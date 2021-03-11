@@ -2,7 +2,9 @@ package net.alhazmy13.wordcloud;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.util.AttributeSet;
+import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
@@ -14,7 +16,7 @@ import java.util.Random;
  * The type Word cloud view.
  */
 public class WordCloudView extends WebView {
-    private Context mContext;
+
     private List<WordCloud> dataSet;
     private int old_min;
     private int old_max;
@@ -33,14 +35,21 @@ public class WordCloudView extends WebView {
      */
     public WordCloudView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.mContext = context;
+        int[] attrsArray = new int[]{
+                android.R.attr.id, // 0
+                android.R.attr.background, // 1
+                android.R.attr.layout_width, // 2
+                android.R.attr.layout_height // 3
+        };
+        TypedArray ta = context.obtainStyledAttributes(attrs, attrsArray);
         this.dataSet = new ArrayList<>();
-        this.parentHeight = 300;
-        this.parentWidth = 450;
+        this.parentWidth = ta.getLayoutDimension(2, ViewGroup.LayoutParams.MATCH_PARENT);
+        this.parentHeight = ta.getLayoutDimension(3, ViewGroup.LayoutParams.MATCH_PARENT);
         this.max = 100;
         this.min = 20;
         this.colors = new int[0];
         this.random = new Random();
+        ta.recycle();
     }
 
     /**
@@ -48,16 +57,15 @@ public class WordCloudView extends WebView {
      */
     @SuppressLint({"AddJavascriptInterface", "SetJavaScriptEnabled"})
     void init() {
-        JavascriptInterface myJavascriptInterface = new JavascriptInterface(mContext);
+        JavascriptInterface jsInterface = new JavascriptInterface(getContext());
 
-        myJavascriptInterface
-                .setCloudParams("", getData(), "FreeSans", parentWidth, parentHeight);
-        addJavascriptInterface(myJavascriptInterface, "jsinterface");
+        jsInterface.setCloudParams("", getData(), "FreeSans", parentWidth, parentHeight);
+        addJavascriptInterface(jsInterface, "jsinterface");
         WebSettings webSettings = getSettings();
         webSettings.setBuiltInZoomControls(false);
         webSettings.setJavaScriptEnabled(true);
 
-        // Use HTML5 localstorage to maintain app state
+        // Use HTML5 local storage to maintain app state
         webSettings.setDefaultTextEncodingName("utf-8");
         webSettings.setAppCacheEnabled(false);
         webSettings.setAllowFileAccess(false);
@@ -77,7 +85,6 @@ public class WordCloudView extends WebView {
         this.dataSet = dataSet;
     }
 
-
     /**
      * Notify data set changed.
      */
@@ -92,7 +99,6 @@ public class WordCloudView extends WebView {
      * @return the data
      */
     public String getData() {
-
         StringBuilder sb = new StringBuilder();
         sb.append("[");
         for (int i = 0; i < dataSet.size(); i++) {
@@ -107,7 +113,6 @@ public class WordCloudView extends WebView {
         sb.append("]");
         return sb.toString();
     }
-
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -132,7 +137,6 @@ public class WordCloudView extends WebView {
         return percent * (max - min) + min;
     }
 
-
     private void updateMaxMinValues() {
         old_min = Integer.MAX_VALUE;
         old_max = Integer.MIN_VALUE;
@@ -151,9 +155,9 @@ public class WordCloudView extends WebView {
     }
 
     private String getColor() {
-        if(colors.length == 0)
+        if (colors.length == 0)
             return "0";
-        return "#" + Integer.toHexString(colors[random.nextInt(colors.length-1)]).substring(2);
+        return "#" + Integer.toHexString(colors[random.nextInt(colors.length - 1)]).substring(2);
     }
 
     /**
@@ -169,7 +173,7 @@ public class WordCloudView extends WebView {
     }
 
     public void setScale(int max, int min) {
-        if(min > max){
+        if (min > max) {
             throw new RuntimeException("MIN scale cannot be larger than MAX");
         }
         this.max = max;
