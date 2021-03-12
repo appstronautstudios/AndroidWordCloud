@@ -3,11 +3,12 @@ package net.alhazmy13.wordcloud.example;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.InputType;
+import android.text.method.ScrollingMovementMethod;
+import android.view.Gravity;
 import android.view.View;
-import android.view.ViewTreeObserver;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -46,8 +47,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 final EditText editText = new EditText(MainActivity.this);
+                editText.setSingleLine(false);
+                editText.setImeOptions(EditorInfo.IME_FLAG_NO_ENTER_ACTION);
+                editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+                editText.setLines(5);
                 editText.setMaxLines(5);
-                editText.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+                editText.setVerticalScrollBarEnabled(true);
+                editText.setMovementMethod(ScrollingMovementMethod.getInstance());
+                editText.setScrollBarStyle(View.SCROLLBARS_INSIDE_INSET);
+                editText.setGravity(Gravity.TOP | Gravity.LEFT);
                 new AlertDialog.Builder(MainActivity.this)
                         .setTitle("new source text")
                         .setMessage("remember that stop words will be ignored")
