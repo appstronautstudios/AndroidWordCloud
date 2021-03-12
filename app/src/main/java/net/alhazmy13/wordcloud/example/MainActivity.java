@@ -2,6 +2,7 @@ package net.alhazmy13.wordcloud.example;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
@@ -45,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 final EditText editText = new EditText(MainActivity.this);
+                editText.setMaxLines(5);
+                editText.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE);
                 new AlertDialog.Builder(MainActivity.this)
                         .setTitle("new source text")
                         .setMessage("remember that stop words will be ignored")
@@ -66,8 +69,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void configure(String text) {
-        final LinearLayout parent = findViewById(R.id.parent);
-
         final ArrayList<WordCloudView> wordCloudViews = new ArrayList<>();
         wordCloudViews.add((WordCloudView) findViewById(R.id.word_cloud_1));
         wordCloudViews.add((WordCloudView) findViewById(R.id.word_cloud_2));
@@ -78,18 +79,9 @@ public class MainActivity extends AppCompatActivity {
 
         for (WordCloudView view : wordCloudViews) {
             view.setDataSet(getWordBucket(text));
-            view.setColors(ColorTemplate.MATERIAL_COLORS);
+            view.setColors(ColorTemplate.COLORFUL_COLORS);
+            view.notifyDataSetChanged();
         }
-
-        parent.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                for (WordCloudView view : wordCloudViews) {
-                    view.notifyDataSetChanged();
-                }
-                parent.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-            }
-        });
     }
 
     public ArrayList<WordCloud> getWordBucket(String text) {

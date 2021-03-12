@@ -1,4 +1,3 @@
-
 var userChosenFontFace =  window.jsinterface.getCloudFont();
 var data =  window.jsinterface.getCloudString();
 var parentWidth = window.jsinterface.getParentWidth();
@@ -8,7 +7,7 @@ var t = $.parseJSON(data).map(function(d) {  return {text: d.word, size: d.size,
 
 var fill = d3.scale.category20();
 var layout = d3.layout.cloud()
-    .size([parentWidth / window.devicePixelRatio, parentHeight / window.devicePixelRatio * .99 ])
+    .size([parentWidth / window.devicePixelRatio, parentHeight / window.devicePixelRatio * .95 ])
     .words(t)
     .padding(0)
     .rotate(function() { return ~~(Math.random() * 2) * 90; })
@@ -42,4 +41,3 @@ function draw(words) {
       .on("click", function(d) { window.jsinterface.onWordClick(d.text); })
       .text(function(d) { return d.text; });
 }
-$(".loading").hide()

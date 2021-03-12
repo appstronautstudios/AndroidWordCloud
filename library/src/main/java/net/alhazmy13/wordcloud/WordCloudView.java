@@ -2,11 +2,17 @@ package net.alhazmy13.wordcloud;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.res.TypedArray;
+import android.graphics.Bitmap;
 import android.util.AttributeSet;
+import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,15 +23,17 @@ import java.util.Random;
  */
 public class WordCloudView extends WebView {
 
+    private JavascriptInterface jsInterface;
     private List<WordCloud> dataSet;
-    private int old_min;
-    private int old_max;
+
     private int[] colors;
     private Random random;
     private int parentHeight;
     private int parentWidth;
-    private int max;
-    private int min;
+    private int currentLowestWeight;
+    private int currentLargestWeight;
+    private int maxWeight;
+    private int minWeight;
 
     /**
      * Instantiates a new Word cloud view.
@@ -35,21 +43,28 @@ public class WordCloudView extends WebView {
      */
     public WordCloudView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        int[] attrsArray = new int[]{
-                android.R.attr.id, // 0
-                android.R.attr.background, // 1
-                android.R.attr.layout_width, // 2
-                android.R.attr.layout_height // 3
-        };
-        TypedArray ta = context.obtainStyledAttributes(attrs, attrsArray);
+
         this.dataSet = new ArrayList<>();
-        this.parentWidth = ta.getLayoutDimension(2, ViewGroup.LayoutParams.MATCH_PARENT);
-        this.parentHeight = ta.getLayoutDimension(3, ViewGroup.LayoutParams.MATCH_PARENT);
-        this.max = 100;
-        this.min = 20;
+        this.maxWeight = 100;
+        this.minWeight = 20;
         this.colors = new int[0];
         this.random = new Random();
-        ta.recycle();
+        this.jsInterface = new JavascriptInterface(getContext());
+
+        init();
+    }
+
+    @Override
+    protected void onSizeChanged(int xNew, int yNew, int xOld, int yOld) {
+        super.onSizeChanged(xNew, yNew, xOld, yOld);
+
+        parentWidth = xNew;
+        parentHeight = yNew;
+
+        // max should never be largest than 5% of the biggest dimension.
+        float biggestDimen = Math.max(parentHeight, parentWidth);
+        maxWeight = (int) biggestDimen / 20;
+        minWeight = (int) maxWeight / 5;
     }
 
     /**
@@ -57,10 +72,6 @@ public class WordCloudView extends WebView {
      */
     @SuppressLint({"AddJavascriptInterface", "SetJavaScriptEnabled"})
     void init() {
-        JavascriptInterface jsInterface = new JavascriptInterface(getContext());
-
-        jsInterface.setCloudParams("", getData(), "FreeSans", parentWidth, parentHeight);
-        addJavascriptInterface(jsInterface, "jsinterface");
         WebSettings webSettings = getSettings();
         webSettings.setBuiltInZoomControls(false);
         webSettings.setJavaScriptEnabled(true);
@@ -73,7 +84,36 @@ public class WordCloudView extends WebView {
         webSettings.setLoadWithOverviewMode(false);
         webSettings.setUseWideViewPort(true);
         webSettings.setUserAgentString("Android");
-        loadUrl("file:///android_asset/wordcloud.html");
+
+        addJavascriptInterface(jsInterface, "jsinterface");
+
+        // add centered progress bar to view and tie appearance to load phases
+        final LinearLayout container = new LinearLayout(getContext());
+        ProgressBar progressBar = new ProgressBar(getContext());
+        container.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        container.setGravity(Gravity.CENTER);
+        container.addView(progressBar);
+        addView(container);
+        setWebViewClient(new WebViewClient() {
+
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                super.onPageStarted(view, url, favicon);
+                clearCache(true);
+                clearView();
+                container.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                container.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                Toast.makeText(getContext(), "Error:" + description, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     /**
@@ -89,8 +129,14 @@ public class WordCloudView extends WebView {
      * Notify data set changed.
      */
     public void notifyDataSetChanged() {
-        updateMaxMinValues();
-        init();
+        post(new Runnable() {
+            @Override
+            public void run() {
+                updateMaxMinValues();
+                jsInterface.setCloudParams("", getData(), "FreeSans", parentWidth, parentHeight);
+                loadUrl("file:///android_asset/wordcloud.html");
+            }
+        });
     }
 
     /**
@@ -114,38 +160,25 @@ public class WordCloudView extends WebView {
         return sb.toString();
     }
 
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        parentWidth = MeasureSpec.getSize(widthMeasureSpec);
-        parentHeight = MeasureSpec.getSize(heightMeasureSpec);
-        this.setMeasuredDimension(parentWidth, parentHeight);
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-    }
-
-
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        this.parentWidth = w;
-        this.parentHeight = h;
-        super.onSizeChanged(w, h, oldw, oldh);
-    }
-
     private float scale(int inputY) {
-        float x = inputY - old_min;
-        float y = old_max - old_min;
+        float x = inputY - currentLowestWeight;
+        float y = currentLargestWeight - currentLowestWeight;
         float percent = x / y;
-        return percent * (max - min) + min;
+        return percent * (maxWeight - minWeight) + minWeight;
     }
 
+    /**
+     * fetch and store min and max weights from data set
+     */
     private void updateMaxMinValues() {
-        old_min = Integer.MAX_VALUE;
-        old_max = Integer.MIN_VALUE;
+        currentLowestWeight = Integer.MAX_VALUE;
+        currentLargestWeight = Integer.MIN_VALUE;
         for (WordCloud wordCloud : dataSet) {
-            if (wordCloud.getWeight() < old_min) {
-                old_min = wordCloud.getWeight();
+            if (wordCloud.getWeight() < currentLowestWeight) {
+                currentLowestWeight = wordCloud.getWeight();
             }
-            if (wordCloud.getWeight() > old_max) {
-                old_max = wordCloud.getWeight();
+            if (wordCloud.getWeight() > currentLargestWeight) {
+                currentLargestWeight = wordCloud.getWeight();
             }
         }
     }
@@ -169,14 +202,5 @@ public class WordCloudView extends WebView {
     public void setSize(int width, int height) {
         this.parentWidth = width;
         this.parentHeight = height;
-
-    }
-
-    public void setScale(int max, int min) {
-        if (min > max) {
-            throw new RuntimeException("MIN scale cannot be larger than MAX");
-        }
-        this.max = max;
-        this.min = min;
     }
 }
